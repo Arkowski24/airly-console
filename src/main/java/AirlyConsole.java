@@ -107,7 +107,7 @@ public class AirlyConsole {
             System.out.println("API Key is not valid.");
             return null;
         } catch (IllegalStateException e){
-            System.out.println("No sensor for given id.");
+            System.out.println("No working sensor for given id.");
             return null;
         }
         return sensorMeasurements;
