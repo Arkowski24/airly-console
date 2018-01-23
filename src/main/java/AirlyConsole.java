@@ -9,7 +9,6 @@ import java.util.List;
 public class AirlyConsole {
     private WebReader webReader;
 
-
     public void execute(JSAPResult jsapResult) {
         if (jsapResult.contains("api-key")) {
             String apiKey = jsapResult.getString("api-key");

@@ -18,8 +18,13 @@ public class Main {
             System.out.println("Couldn't parse given options.");
             return;
         }
-        AirlyConsole airlyConsole = new AirlyConsole();
-        airlyConsole.execute(jsapResult);
+        if (jsapResult.getBoolean("help")){
+            System.out.println(jsap.getHelp());
+        }
+        else {
+            AirlyConsole airlyConsole = new AirlyConsole();
+            airlyConsole.execute(jsapResult);
+        }
     }
 
     private static void fillJsapParser(JSAP jsap) throws JSAPException{
@@ -58,10 +63,17 @@ public class Main {
 
         historySwitch.setHelp("Changes program mode to display historic measurements instead of current one.");
 
+        Switch helpSwitch = new Switch("help")
+                .setShortFlag('h')
+                .setLongFlag("help");
+
+        historySwitch.setHelp("Changes program mode to display historic measurements instead of current one.");
+
         jsap.registerParameter(apiKeyOption);
         jsap.registerParameter(sensorIdOption);
         jsap.registerParameter(latitudeOption);
         jsap.registerParameter(longitudeOption);
         jsap.registerParameter(historySwitch);
+        jsap.registerParameter(helpSwitch);
     }
 }

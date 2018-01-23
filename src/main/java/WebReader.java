@@ -37,12 +37,11 @@ public class WebReader {
         //Read website
 
         URI uri = buildSensorMeasurementsURI(sensorID, historyHours, historyResolutionHours);
-        HttpGet request = new HttpGet(uri);
-        request.addHeader("apikey", this.apiKey);
-
-        response = httpclient.execute(request);
+        response = getResponse(uri);
 
         String jsonResponse = handleServerResponse(response);
+        response.close();
+        httpclient.close();
         return parseSensorMeasurements(jsonResponse);
     }
 
@@ -50,12 +49,11 @@ public class WebReader {
         CloseableHttpResponse response;
         //Read website
         URI uri = buildNearestSensorMeasurementsURI(latitude, longitude, maxDistance);
-        HttpGet request = new HttpGet(uri);
-        request.addHeader("apikey", this.apiKey);
-
-        response = httpclient.execute(request);
+        response = getResponse(uri);
 
         String jsonResponse = handleServerResponse(response);
+        response.close();
+        httpclient.close();
         return parseNearestMeasuremenets(jsonResponse);
     }
 
@@ -63,13 +61,21 @@ public class WebReader {
         CloseableHttpResponse response;
         //Read website
         URI uri = buildSensorDetailsURI(sensorID);
+        response = getResponse(uri);
+
+        String jsonResponse = handleServerResponse(response);
+        response.close();
+        httpclient.close();
+        return parseSensorDetails(jsonResponse);
+    }
+
+    private CloseableHttpResponse getResponse(URI uri) throws IOException{
+        CloseableHttpResponse response;
         HttpGet request = new HttpGet(uri);
         request.addHeader("apikey", this.apiKey);
 
         response = httpclient.execute(request);
-
-        String jsonResponse = handleServerResponse(response);
-        return parseSensorDetails(jsonResponse);
+        return response;
     }
 
     private String handleServerResponse(CloseableHttpResponse response) throws IOException, AuthenticationException {
@@ -81,7 +87,6 @@ public class WebReader {
             throw new HttpResponseException(responseStatusCode, "Problem with connection.");
         }
 
-        //Parse json
         String responseString = new BasicResponseHandler().handleResponse(response);
 
         if(isNullResponse(responseString)){
