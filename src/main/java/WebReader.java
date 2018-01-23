@@ -41,7 +41,6 @@ public class WebReader {
 
         String jsonResponse = handleServerResponse(response);
         response.close();
-        httpclient.close();
         return parseSensorMeasurements(jsonResponse);
     }
 
@@ -53,7 +52,6 @@ public class WebReader {
 
         String jsonResponse = handleServerResponse(response);
         response.close();
-        httpclient.close();
         return parseNearestMeasuremenets(jsonResponse);
     }
 
@@ -65,7 +63,6 @@ public class WebReader {
 
         String jsonResponse = handleServerResponse(response);
         response.close();
-        httpclient.close();
         return parseSensorDetails(jsonResponse);
     }
 
@@ -133,6 +130,10 @@ public class WebReader {
 
     private boolean isNullResponse(String response){
         return response.contains("\"currentMeasurements\":{}");
+    }
+
+    public void closeHttpServer() throws IOException{
+        httpclient.close();
     }
 
 }

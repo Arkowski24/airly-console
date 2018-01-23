@@ -50,6 +50,12 @@ public class AirlyConsole {
                 showNearestSensorHistoricMeasurements(latitude, longitude);
             }
         }
+        try {
+            webReader.closeHttpServer();
+        }
+        catch (IOException e){
+            System.out.println("Couldn't close http server.");
+        }
     }
 
     public void showSensorCurrentMeasurements(int sensorId) {
