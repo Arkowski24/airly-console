@@ -1,5 +1,4 @@
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -36,40 +35,44 @@ public class WebReader {
     public SensorMeasurements readSensorMeasurements(int sensorID, int historyHours, int historyResolutionHours) throws URISyntaxException, IOException, AuthenticationException {
         CloseableHttpResponse response;
         //Read website
-        try {
-            URI uri = buildSensorMeasurementsURI(sensorID, historyHours, historyResolutionHours);
-            HttpGet request = new HttpGet(uri);
-            request.addHeader("apikey", this.apiKey);
 
-            response = httpclient.execute(request);
-        } catch (URISyntaxException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new IOException(e);
-        }
+        URI uri = buildSensorMeasurementsURI(sensorID, historyHours, historyResolutionHours);
+        HttpGet request = new HttpGet(uri);
+        request.addHeader("apikey", this.apiKey);
 
-        return handleServerResponse(response);
+        response = httpclient.execute(request);
+
+        String jsonResponse = handleServerResponse(response);
+        return parseSensorMeasurements(jsonResponse);
     }
 
     public SensorMeasurements readNearestSensorMeasurements(double latitude, double longitude, int maxDistance) throws URISyntaxException, IOException, AuthenticationException {
         CloseableHttpResponse response;
         //Read website
-        try {
-            URI uri = buildNearestSensorMeasurementsURI(latitude, longitude, maxDistance);
-            HttpGet request = new HttpGet(uri);
-            request.addHeader("apikey", this.apiKey);
+        URI uri = buildNearestSensorMeasurementsURI(latitude, longitude, maxDistance);
+        HttpGet request = new HttpGet(uri);
+        request.addHeader("apikey", this.apiKey);
 
-            response = httpclient.execute(request);
-        } catch (URISyntaxException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new IOException(e);
-        }
+        response = httpclient.execute(request);
 
-        return handleServerResponse(response);
+        String jsonResponse = handleServerResponse(response);
+        return parseSensorMeasurements(jsonResponse);
     }
 
-    private SensorMeasurements handleServerResponse(CloseableHttpResponse response) throws IOException, AuthenticationException {
+    public SensorDetails readSensorDetails(int sensorID) throws URISyntaxException, IOException, AuthenticationException {
+        CloseableHttpResponse response;
+        //Read website
+        URI uri = buildSensorDetailsURI(sensorID);
+        HttpGet request = new HttpGet(uri);
+        request.addHeader("apikey", this.apiKey);
+
+        response = httpclient.execute(request);
+
+        String jsonResponse = handleServerResponse(response);
+        return parseSensorDetails(jsonResponse);
+    }
+
+    private String handleServerResponse(CloseableHttpResponse response) throws IOException, AuthenticationException {
         //Handle response
         int responseStatusCode = response.getStatusLine().getStatusCode();
         if (responseStatusCode == 401) {
@@ -80,9 +83,13 @@ public class WebReader {
 
         //Parse json
         String responseString = new BasicResponseHandler().handleResponse(response);
-        return parseSensorMeasurements(responseString);
+        return responseString;
     }
 
+    private URI buildSensorDetailsURI(int sensorID)throws URISyntaxException{
+        URIBuilder uriBuilder = new URIBuilder(apiWebAddress + "/v1/sensors/" + sensorID);
+        return uriBuilder.build();
+    }
 
     private URI buildSensorMeasurementsURI(int sensorID, int historyHours, int historyResolutionHours) throws URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(apiWebAddress + "/v1/sensor/measurements");
@@ -103,6 +110,11 @@ public class WebReader {
     private SensorMeasurements parseSensorMeasurements(String jsonResponse){
         Gson gson = new Gson();
         return gson.fromJson(jsonResponse, SensorMeasurements.class);
+    }
+
+    private SensorDetails parseSensorDetails(String jsonResponse){
+        Gson gson = new Gson();
+        return gson.fromJson(jsonResponse, SensorDetails.class);
     }
 
 }
