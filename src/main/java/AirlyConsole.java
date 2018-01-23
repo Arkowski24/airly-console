@@ -35,6 +35,10 @@ public class AirlyConsole {
                 showSensorHistoricMeasurements(sensorId);
             }
         } else {
+            if (!jsapResult.contains("latitude") && !jsapResult.contains("longitude")){
+                System.out.println("Program requires either valid latitude and longitude or valid sensor id.");
+                return;
+            }
             if (!jsapResult.contains("latitude") || !jsapResult.contains("longitude")) {
                 System.out.println("Program requires both latitude and longitude.");
                 return;
@@ -51,20 +55,37 @@ public class AirlyConsole {
 
     public void showSensorCurrentMeasurements(int sensorId) {
         SensorMeasurements sensorMeasurements = readAndHandleSensorMeasurements(sensorId);
-        SensorDetails sensorDetails = readAndHandleSensorDetails(sensorId);
-        if (sensorMeasurements == null || sensorDetails == null)
+        if (sensorMeasurements == null)
             return;
+        SensorDetails sensorDetails = readAndHandleSensorDetails(sensorId);
+        if (sensorDetails == null)
+            return;
+
         printCurrentSensorMeasurements(sensorMeasurements.currentMeasurements, sensorDetails);
     }
 
     public void showSensorHistoricMeasurements(int sensorId) {
-        SensorMeasurements sensorMeasurements =readAndHandleSensorMeasurements(sensorId);
+        SensorMeasurements sensorMeasurements = readAndHandleSensorMeasurements(sensorId);
         if (sensorMeasurements == null)
             return;
-        printHistoricSensorMeasurements(sensorMeasurements.history);
+        SensorDetails sensorDetails = readAndHandleSensorDetails(sensorId);
+        if (sensorDetails == null)
+            return;
+        printHistoricSensorMeasurements(sensorMeasurements.history, sensorDetails);
     }
 
-    private SensorMeasurements readAndHandleSensorMeasurements(int sensorId){
+    public void showNearestSensorCurrentMeasurements(double latitude, double longitude) {
+        NearestMeasurements nearestMeasurements = readAndHandleNearestSensorMeasurements(latitude, longitude);
+        if (nearestMeasurements == null)
+            return;
+        printCurrentSensorMeasurements(nearestMeasurements, new SensorDetails(nearestMeasurements));
+    }
+
+    public void showNearestSensorHistoricMeasurements(double latitude, double longitude) {
+
+    }
+
+    private SensorMeasurements readAndHandleSensorMeasurements(int sensorId) {
         SensorMeasurements sensorMeasurements;
         try {
             sensorMeasurements = webReader.readSensorMeasurements(sensorId, 24, 1);
@@ -77,11 +98,36 @@ public class AirlyConsole {
         } catch (AuthenticationException e) {
             System.out.println("API Key is not valid.");
             return null;
+        } catch (IllegalStateException e){
+            System.out.println("No sensor for given id.");
+            return null;
         }
         return sensorMeasurements;
     }
 
-    private SensorDetails readAndHandleSensorDetails(int sensorId){
+    private NearestMeasurements readAndHandleNearestSensorMeasurements(double latitude, double longitude) {
+        NearestMeasurements sensorMeasurements;
+        try {
+            sensorMeasurements = webReader.readNearestSensorMeasurements(latitude, longitude, 1000);
+        } catch (URISyntaxException e) {
+            System.out.println("Couldn't create URI.");
+            return null;
+        } catch (IOException e) {
+            System.out.println("Couldn't establish connection with server.");
+            return null;
+        } catch (AuthenticationException e) {
+            System.out.println("API Key is not valid.");
+            return null;
+        }
+        if (sensorMeasurements.address == null){
+            System.out.println("Location too far away from sensors.");
+            return null;
+        }
+
+        return sensorMeasurements;
+    }
+
+    private SensorDetails readAndHandleSensorDetails(int sensorId) {
         SensorDetails sensorDetails;
         try {
             sensorDetails = webReader.readSensorDetails(sensorId);
@@ -98,50 +144,61 @@ public class AirlyConsole {
         return sensorDetails;
     }
 
-    public void showNearestSensorCurrentMeasurements(double latitude, double longitude) {
-
-    }
-
-    public void showNearestSensorHistoricMeasurements(double latitude, double longitude) {
-
-    }
-
     private void printCurrentSensorMeasurements(Measurements measurements, SensorDetails details) {
         AirQuality airQuality = getAirQuality(Math.round(measurements.airQualityIndex));
         List<String> base = getAsciiForIndex(airQuality);
-        PrettyMeasurements prettyMeasurements = new PrettyMeasurements(measurements);
+        PrettyMeasurements prettyMeasurements = new PrettyMeasurements(measurements, 1);
 
         base.set(0, base.get(0) + " | Address: " + details.address);
         base.set(1, base.get(1) + " | CAQI: " + prettyMeasurements.caqi + " " + airQuality);
-        base.set(2, base.get(2) + " | PM 2.5: " + prettyMeasurements.pm25);
-        base.set(3, base.get(3) + " | PM 10: " + prettyMeasurements.pm10);
+        base.set(2, base.get(2) + " | PM 2.5: " + prettyMeasurements.pm25 + " " + prettyMeasurements.pm25NormPercent);
+        base.set(3, base.get(3) + " | PM 10: " + prettyMeasurements.pm10 + " " + prettyMeasurements.pm10NormPercent);
         base.set(4, base.get(4) + " | Temperature: " + prettyMeasurements.temperature);
         base.set(5, base.get(5) + " | Humidity: " + prettyMeasurements.humidity);
 
-        for (String line : base){
+        for (String line : base) {
             System.out.println(line);
         }
     }
 
-    private List<String> getAsciiForIndex(AirQuality airQualityIndex){
-        switch (airQualityIndex){
-            case Good: return getGood();
+    private void printHistoricSensorMeasurements(MeasurementsWithInterval[] measurements, SensorDetails details) {
+        List<String> lines = new ArrayList<>();
+        lines.add("Sensor address: " + details.address);
+        lines.add("Historic measurements: ");
+        lines.add(" No.|     PM 2.5|      PM 10|                    Date from|                    Date till");
 
-            case Ok: return getOK();
+        for (int i = 0; i < measurements.length; i++){
+            PrettyMeasurements prettyMeasurements = new PrettyMeasurements(measurements[i].measurements, 4);
 
-            case Bad: return getBad();
+            lines.add(prettyMeasurements.getAdjustedNumber(i + 1, 4) + "| " + prettyMeasurements.pm25 + "| " + prettyMeasurements.pm10
+                    + "| " + measurements[i].fromDateTime + "| " + measurements[i].tillDateTime);
+        }
 
-            case Dangerous: return getDangerous();
-
-            default: return null;
+        for (String line : lines) {
+            System.out.println(line);
         }
     }
 
-    private void printHistoricSensorMeasurements(MeasurementsWithInterval[] sensorMeasurements) {
+    private List<String> getAsciiForIndex(AirQuality airQualityIndex) {
+        switch (airQualityIndex) {
+            case Good:
+                return getGood();
 
+            case Ok:
+                return getOK();
+
+            case Bad:
+                return getBad();
+
+            case Dangerous:
+                return getDangerous();
+
+            default:
+                return null;
+        }
     }
 
-    private List<String> getGood(){
+    private List<String> getGood() {
         List<String> okAscii = new ArrayList<>();
         okAscii.add("   ______                __");
         okAscii.add("  / ____/___  ____  ____/ /");
@@ -152,7 +209,7 @@ public class AirlyConsole {
         return okAscii;
     }
 
-    private List<String> getOK(){
+    private List<String> getOK() {
         List<String> okAscii = new ArrayList<>();
         okAscii.add("   ____  __  ");
         okAscii.add("  / __ \\/ /__");
@@ -163,7 +220,7 @@ public class AirlyConsole {
         return okAscii;
     }
 
-    private List<String> getBad(){
+    private List<String> getBad() {
         List<String> okAscii = new ArrayList<>();
         okAscii.add("    ____            __");
         okAscii.add("   / __ )____ _____/ /");
@@ -174,7 +231,7 @@ public class AirlyConsole {
         return okAscii;
     }
 
-    private List<String> getDangerous(){
+    private List<String> getDangerous() {
         List<String> okAscii = new ArrayList<>();
         okAscii.add("    ____  _   ________");
         okAscii.add("   / __ \\/ | / / ____/");
@@ -185,17 +242,14 @@ public class AirlyConsole {
         return okAscii;
     }
 
-    private AirQuality getAirQuality(double airQualityIndex){
-        if (airQualityIndex < 40){
+    private AirQuality getAirQuality(double airQualityIndex) {
+        if (airQualityIndex < 40) {
             return AirQuality.Good;
-        }
-        else if (airQualityIndex < 70){
+        } else if (airQualityIndex < 70) {
             return AirQuality.Ok;
-        }
-        else if (airQualityIndex < 100){
+        } else if (airQualityIndex < 100) {
             return AirQuality.Bad;
-        }
-        else {
+        } else {
             return AirQuality.Dangerous;
         }
     }

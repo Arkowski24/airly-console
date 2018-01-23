@@ -1,5 +1,4 @@
 public class Measurements {
-    public final int sensorId;
     public final double airQualityIndex;
     public final double humidity;
     public final String measurementTime;
@@ -12,8 +11,7 @@ public class Measurements {
     public final String windDirection;
     public final double windSpeed;
 
-    public Measurements(int sensorId, double airQualityIndex, double humidity, String measurementTime, double pm1, double pm10, double pm25, double pollutionLevel, double pressure, double temperature, String windDirection, double windSpeed) {
-        this.sensorId = sensorId;
+    public Measurements(double airQualityIndex, double humidity, String measurementTime, double pm1, double pm10, double pm25, double pollutionLevel, double pressure, double temperature, String windDirection, double windSpeed) {
         this.airQualityIndex = airQualityIndex;
         this.humidity = humidity;
         this.measurementTime = measurementTime;

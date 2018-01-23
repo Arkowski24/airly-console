@@ -46,7 +46,7 @@ public class WebReader {
         return parseSensorMeasurements(jsonResponse);
     }
 
-    public SensorMeasurements readNearestSensorMeasurements(double latitude, double longitude, int maxDistance) throws URISyntaxException, IOException, AuthenticationException {
+    public NearestMeasurements readNearestSensorMeasurements(double latitude, double longitude, int maxDistance) throws URISyntaxException, IOException, AuthenticationException {
         CloseableHttpResponse response;
         //Read website
         URI uri = buildNearestSensorMeasurementsURI(latitude, longitude, maxDistance);
@@ -56,7 +56,7 @@ public class WebReader {
         response = httpclient.execute(request);
 
         String jsonResponse = handleServerResponse(response);
-        return parseSensorMeasurements(jsonResponse);
+        return parseNearestMeasuremenets(jsonResponse);
     }
 
     public SensorDetails readSensorDetails(int sensorID) throws URISyntaxException, IOException, AuthenticationException {
@@ -83,6 +83,10 @@ public class WebReader {
 
         //Parse json
         String responseString = new BasicResponseHandler().handleResponse(response);
+
+        if(isNullResponse(responseString)){
+            throw new IllegalStateException("Null response.");
+        }
         return responseString;
     }
 
@@ -112,9 +116,18 @@ public class WebReader {
         return gson.fromJson(jsonResponse, SensorMeasurements.class);
     }
 
+    private NearestMeasurements parseNearestMeasuremenets(String jsonResponse){
+        Gson gson = new Gson();
+        return gson.fromJson(jsonResponse, NearestMeasurements.class);
+    }
+
     private SensorDetails parseSensorDetails(String jsonResponse){
         Gson gson = new Gson();
         return gson.fromJson(jsonResponse, SensorDetails.class);
+    }
+
+    private boolean isNullResponse(String response){
+        return response.contains("\"currentMeasurements\":{}");
     }
 
 }

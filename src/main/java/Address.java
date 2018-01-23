@@ -33,6 +33,19 @@ public class Address {
 
     @Override
     public String toString() {
-        return country + " " + locality + " " + route + " " + streetNumber;
+        StringBuilder builder = new StringBuilder("");
+        if(country != null){
+            builder.append(country + " ");
+        }
+        if(locality != null){
+            builder.append(locality + " ");
+        }
+        if(route != null){
+            builder.append(route + " ");
+        }
+        if(streetNumber != null){
+            builder.append(streetNumber + " ");
+        }
+        return builder.toString();
     }
 }
