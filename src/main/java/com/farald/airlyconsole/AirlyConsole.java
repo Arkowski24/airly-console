@@ -1,3 +1,5 @@
+package com.farald.airlyconsole;
+
 import com.martiansoftware.jsap.JSAPResult;
 
 import javax.naming.AuthenticationException;
@@ -35,7 +37,7 @@ public class AirlyConsole {
             }
         } else {
             if (!jsapResult.contains("latitude") && !jsapResult.contains("longitude")) {
-                System.out.println("Program requires either valid latitude and longitude or valid sensor id.");
+                System.out.println("Program requires either valid latitude and longitude parameters or a valid sensor id.");
                 return;
             }
             if (!jsapResult.contains("latitude") || !jsapResult.contains("longitude")) {
