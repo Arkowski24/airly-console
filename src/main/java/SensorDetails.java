@@ -15,7 +15,7 @@ public class SensorDetails {
         this.pollutionLevel = pollutionLevel;
     }
 
-    public SensorDetails(NearestMeasurements measurements){
+    public SensorDetails(NearestMeasurements measurements) {
         this.sensorId = measurements.id;
         this.name = measurements.name;
         this.vendor = measurements.vendor;

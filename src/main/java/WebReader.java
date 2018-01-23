@@ -66,7 +66,7 @@ public class WebReader {
         return parseSensorDetails(jsonResponse);
     }
 
-    private CloseableHttpResponse getResponse(URI uri) throws IOException{
+    private CloseableHttpResponse getResponse(URI uri) throws IOException {
         CloseableHttpResponse response;
         HttpGet request = new HttpGet(uri);
         request.addHeader("apikey", this.apiKey);
@@ -86,13 +86,13 @@ public class WebReader {
 
         String responseString = new BasicResponseHandler().handleResponse(response);
 
-        if(isNullResponse(responseString)){
+        if (isNullResponse(responseString)) {
             throw new IllegalStateException("Null response.");
         }
         return responseString;
     }
 
-    private URI buildSensorDetailsURI(int sensorID)throws URISyntaxException{
+    private URI buildSensorDetailsURI(int sensorID) throws URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(apiWebAddress + "/v1/sensors/" + sensorID);
         return uriBuilder.build();
     }
@@ -113,26 +113,26 @@ public class WebReader {
         return uriBuilder.build();
     }
 
-    private SensorMeasurements parseSensorMeasurements(String jsonResponse){
+    private SensorMeasurements parseSensorMeasurements(String jsonResponse) {
         Gson gson = new Gson();
         return gson.fromJson(jsonResponse, SensorMeasurements.class);
     }
 
-    private NearestMeasurements parseNearestMeasurements(String jsonResponse){
+    private NearestMeasurements parseNearestMeasurements(String jsonResponse) {
         Gson gson = new Gson();
         return gson.fromJson(jsonResponse, NearestMeasurements.class);
     }
 
-    private SensorDetails parseSensorDetails(String jsonResponse){
+    private SensorDetails parseSensorDetails(String jsonResponse) {
         Gson gson = new Gson();
         return gson.fromJson(jsonResponse, SensorDetails.class);
     }
 
-    private boolean isNullResponse(String response){
+    private boolean isNullResponse(String response) {
         return response.contains("\"currentMeasurements\":{}");
     }
 
-    public void closeHttpServer() throws IOException{
+    public void closeHttpServer() throws IOException {
         httpclient.close();
     }
 

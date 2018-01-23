@@ -19,7 +19,7 @@ public class PrettyMeasurements {
         this.humidity = Long.toString(Math.round(measurements.humidity)) + "%";
     }
 
-    public static String getAdjustedNumber(Number index, int length){
+    public static String getAdjustedNumber(Number index, int length) {
         return String.format("%1$" + length + "s", index);
     }
 }

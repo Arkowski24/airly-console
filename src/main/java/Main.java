@@ -1,33 +1,30 @@
 import com.martiansoftware.jsap.*;
 
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         JSAP jsap = new JSAP();
         JSAPResult jsapResult;
         try {
             fillJsapParser(jsap);
-        }
-        catch (JSAPException e){
+        } catch (JSAPException e) {
             System.out.println("There was a problem with JSAP parser.");
             return;
         }
         try {
             jsapResult = jsap.parse(args);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Couldn't parse given options.");
             return;
         }
-        if (jsapResult.getBoolean("help")){
+        if (jsapResult.getBoolean("help")) {
             System.out.println(jsap.getHelp());
-        }
-        else {
+        } else {
             AirlyConsole airlyConsole = new AirlyConsole();
             airlyConsole.execute(jsapResult);
         }
     }
 
-    private static void fillJsapParser(JSAP jsap) throws JSAPException{
+    private static void fillJsapParser(JSAP jsap) throws JSAPException {
         FlaggedOption apiKeyOption = new FlaggedOption("api-key")
                 .setStringParser(JSAP.STRING_PARSER)
                 .setShortFlag(JSAP.NO_SHORTFLAG)

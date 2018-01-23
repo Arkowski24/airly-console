@@ -11,7 +11,6 @@ public class Address {
         this.locality = locality;
         this.route = route;
         this.streetNumber = streetNumber;
-
     }
 
     @Override
@@ -34,19 +33,19 @@ public class Address {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("");
-        if(country != null){
+        if (country != null) {
             builder.append(country);
             builder.append(" ");
         }
-        if(locality != null){
+        if (locality != null) {
             builder.append(locality);
             builder.append(" ");
         }
-        if(route != null){
+        if (route != null) {
             builder.append(route);
             builder.append(" ");
         }
-        if(streetNumber != null){
+        if (streetNumber != null) {
             builder.append(streetNumber);
             builder.append(" ");
         }

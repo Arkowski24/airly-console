@@ -34,7 +34,7 @@ public class AirlyConsole {
                 showSensorHistoricMeasurements(sensorId);
             }
         } else {
-            if (!jsapResult.contains("latitude") && !jsapResult.contains("longitude")){
+            if (!jsapResult.contains("latitude") && !jsapResult.contains("longitude")) {
                 System.out.println("Program requires either valid latitude and longitude or valid sensor id.");
                 return;
             }
@@ -52,8 +52,7 @@ public class AirlyConsole {
         }
         try {
             webReader.closeHttpServer();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Couldn't close http server.");
         }
     }
@@ -106,7 +105,7 @@ public class AirlyConsole {
         } catch (AuthenticationException e) {
             System.out.println("API Key is not valid.");
             return null;
-        } catch (IllegalStateException e){
+        } catch (IllegalStateException e) {
             System.out.println("No working sensor for given id.");
             return null;
         }
@@ -127,7 +126,7 @@ public class AirlyConsole {
             System.out.println("API Key is not valid.");
             return null;
         }
-        if (sensorMeasurements.address == null){
+        if (sensorMeasurements.address == null) {
             System.out.println("Location too far away from sensors.");
             return null;
         }
@@ -176,7 +175,7 @@ public class AirlyConsole {
         lines.add("Historic measurements: ");
         lines.add(" No.|     PM 2.5|      PM 10|                    Date from|                    Date till");
 
-        for (int i = 0; i < measurements.length; i++){
+        for (int i = 0; i < measurements.length; i++) {
             PrettyMeasurements prettyMeasurements = new PrettyMeasurements(measurements[i].measurements, 4);
 
             lines.add(PrettyMeasurements.getAdjustedNumber(i + 1, 4) + "| " + prettyMeasurements.pm25 + "| " + prettyMeasurements.pm10
