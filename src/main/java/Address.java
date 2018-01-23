@@ -30,4 +30,9 @@ public class Address {
 
         return Objects.hash(country, locality, route, streetNumber);
     }
+
+    @Override
+    public String toString() {
+        return country + " " + locality + " " + route + " " + streetNumber;
+    }
 }

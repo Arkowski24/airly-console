@@ -2,7 +2,6 @@ import com.martiansoftware.jsap.JSAPResult;
 
 import javax.naming.AuthenticationException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +50,11 @@ public class AirlyConsole {
     }
 
     public void showSensorCurrentMeasurements(int sensorId) {
-        SensorMeasurements sensorMeasurements =readAndHandleSensorMeasurements(sensorId);
-        if (sensorMeasurements == null)
+        SensorMeasurements sensorMeasurements = readAndHandleSensorMeasurements(sensorId);
+        SensorDetails sensorDetails = readAndHandleSensorDetails(sensorId);
+        if (sensorMeasurements == null || sensorDetails == null)
             return;
-        printCurrentSensorMeasurements(sensorMeasurements.currentMeasurements);
+        printCurrentSensorMeasurements(sensorMeasurements.currentMeasurements, sensorDetails);
     }
 
     public void showSensorHistoricMeasurements(int sensorId) {
@@ -81,6 +81,23 @@ public class AirlyConsole {
         return sensorMeasurements;
     }
 
+    private SensorDetails readAndHandleSensorDetails(int sensorId){
+        SensorDetails sensorDetails;
+        try {
+            sensorDetails = webReader.readSensorDetails(sensorId);
+        } catch (URISyntaxException e) {
+            System.out.println("Couldn't create URI.");
+            return null;
+        } catch (IOException e) {
+            System.out.println("Couldn't establish connection with server.");
+            return null;
+        } catch (AuthenticationException e) {
+            System.out.println("API Key is not valid.");
+            return null;
+        }
+        return sensorDetails;
+    }
+
     public void showNearestSensorCurrentMeasurements(double latitude, double longitude) {
 
     }
@@ -89,10 +106,34 @@ public class AirlyConsole {
 
     }
 
-    private void printCurrentSensorMeasurements(Measurements sensorMeasurements) {
-        List<String> baseAscii = getDanger();
-        for (String line : baseAscii){
+    private void printCurrentSensorMeasurements(Measurements measurements, SensorDetails details) {
+        AirQuality airQuality = getAirQuality(Math.round(measurements.airQualityIndex));
+        List<String> base = getAsciiForIndex(airQuality);
+        PrettyMeasurements prettyMeasurements = new PrettyMeasurements(measurements);
+
+        base.set(0, base.get(0) + " | Address: " + details.address);
+        base.set(1, base.get(1) + " | CAQI: " + prettyMeasurements.caqi + " " + airQuality);
+        base.set(2, base.get(2) + " | PM 2.5: " + prettyMeasurements.pm25);
+        base.set(3, base.get(3) + " | PM 10: " + prettyMeasurements.pm10);
+        base.set(4, base.get(4) + " | Temperature: " + prettyMeasurements.temperature);
+        base.set(5, base.get(5) + " | Humidity: " + prettyMeasurements.humidity);
+
+        for (String line : base){
             System.out.println(line);
+        }
+    }
+
+    private List<String> getAsciiForIndex(AirQuality airQualityIndex){
+        switch (airQualityIndex){
+            case Good: return getGood();
+
+            case Ok: return getOK();
+
+            case Bad: return getBad();
+
+            case Dangerous: return getDangerous();
+
+            default: return null;
         }
     }
 
@@ -133,7 +174,7 @@ public class AirlyConsole {
         return okAscii;
     }
 
-    private List<String> getDanger(){
+    private List<String> getDangerous(){
         List<String> okAscii = new ArrayList<>();
         okAscii.add("    ____  _   ________");
         okAscii.add("   / __ \\/ | / / ____/");
@@ -142,5 +183,20 @@ public class AirlyConsole {
         okAscii.add("/_____/_/ |_/\\____/   ");
         okAscii.add("                      ");
         return okAscii;
+    }
+
+    private AirQuality getAirQuality(double airQualityIndex){
+        if (airQualityIndex < 40){
+            return AirQuality.Good;
+        }
+        else if (airQualityIndex < 70){
+            return AirQuality.Ok;
+        }
+        else if (airQualityIndex < 100){
+            return AirQuality.Bad;
+        }
+        else {
+            return AirQuality.Dangerous;
+        }
     }
 }
