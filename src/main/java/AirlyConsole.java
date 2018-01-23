@@ -82,7 +82,10 @@ public class AirlyConsole {
     }
 
     public void showNearestSensorHistoricMeasurements(double latitude, double longitude) {
-
+        NearestMeasurements nearestMeasurements = readAndHandleNearestSensorMeasurements(latitude, longitude);
+        if (nearestMeasurements == null)
+            return;
+        showSensorHistoricMeasurements(nearestMeasurements.id);
     }
 
     private SensorMeasurements readAndHandleSensorMeasurements(int sensorId) {
