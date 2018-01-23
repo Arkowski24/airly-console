@@ -52,7 +52,7 @@ public class WebReader {
 
         String jsonResponse = handleServerResponse(response);
         response.close();
-        return parseNearestMeasuremenets(jsonResponse);
+        return parseNearestMeasurements(jsonResponse);
     }
 
     public SensorDetails readSensorDetails(int sensorID) throws URISyntaxException, IOException, AuthenticationException {
@@ -118,7 +118,7 @@ public class WebReader {
         return gson.fromJson(jsonResponse, SensorMeasurements.class);
     }
 
-    private NearestMeasurements parseNearestMeasuremenets(String jsonResponse){
+    private NearestMeasurements parseNearestMeasurements(String jsonResponse){
         Gson gson = new Gson();
         return gson.fromJson(jsonResponse, NearestMeasurements.class);
     }

@@ -35,16 +35,20 @@ public class Address {
     public String toString() {
         StringBuilder builder = new StringBuilder("");
         if(country != null){
-            builder.append(country + " ");
+            builder.append(country);
+            builder.append(" ");
         }
         if(locality != null){
-            builder.append(locality + " ");
+            builder.append(locality);
+            builder.append(" ");
         }
         if(route != null){
-            builder.append(route + " ");
+            builder.append(route);
+            builder.append(" ");
         }
         if(streetNumber != null){
-            builder.append(streetNumber + " ");
+            builder.append(streetNumber);
+            builder.append(" ");
         }
         return builder.toString();
     }

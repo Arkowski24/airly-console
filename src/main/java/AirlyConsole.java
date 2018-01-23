@@ -157,6 +157,7 @@ public class AirlyConsole {
         List<String> base = getAsciiForIndex(airQuality);
         PrettyMeasurements prettyMeasurements = new PrettyMeasurements(measurements, 1);
 
+        assert base != null;
         base.set(0, base.get(0) + " | Address: " + details.address);
         base.set(1, base.get(1) + " | CAQI: " + prettyMeasurements.caqi + " " + airQuality);
         base.set(2, base.get(2) + " | PM 2.5: " + prettyMeasurements.pm25 + " " + prettyMeasurements.pm25NormPercent);
@@ -178,7 +179,7 @@ public class AirlyConsole {
         for (int i = 0; i < measurements.length; i++){
             PrettyMeasurements prettyMeasurements = new PrettyMeasurements(measurements[i].measurements, 4);
 
-            lines.add(prettyMeasurements.getAdjustedNumber(i + 1, 4) + "| " + prettyMeasurements.pm25 + "| " + prettyMeasurements.pm10
+            lines.add(PrettyMeasurements.getAdjustedNumber(i + 1, 4) + "| " + prettyMeasurements.pm25 + "| " + prettyMeasurements.pm10
                     + "| " + measurements[i].fromDateTime + "| " + measurements[i].tillDateTime);
         }
 
