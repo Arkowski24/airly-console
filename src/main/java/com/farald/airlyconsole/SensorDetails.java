@@ -1,3 +1,5 @@
+package com.farald.airlyconsole;
+
 public class SensorDetails {
     public final int sensorId;
     public final String name;

@@ -1,3 +1,5 @@
+package com.farald.airlyconsole;
+
 public class Measurements {
     public final double airQualityIndex;
     public final double humidity;

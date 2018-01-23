@@ -1,3 +1,5 @@
+package com.farald.airlyconsole;
+
 import java.util.Objects;
 
 public class Address {

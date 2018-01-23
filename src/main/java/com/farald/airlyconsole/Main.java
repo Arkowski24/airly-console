@@ -1,3 +1,5 @@
+package com.farald.airlyconsole;
+
 import com.martiansoftware.jsap.*;
 
 public class Main {

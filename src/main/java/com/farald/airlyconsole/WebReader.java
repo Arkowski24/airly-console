@@ -1,3 +1,5 @@
+package com.farald.airlyconsole;
+
 import com.google.gson.Gson;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;

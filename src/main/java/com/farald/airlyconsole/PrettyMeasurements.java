@@ -1,3 +1,5 @@
+package com.farald.airlyconsole;
+
 public class PrettyMeasurements {
     public final String caqi;
     public final String pm25;

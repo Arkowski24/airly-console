@@ -1,3 +1,5 @@
+package com.farald.airlyconsole;
+
 public class NearestMeasurements extends Measurements {
     public final int id;
     public final String name;

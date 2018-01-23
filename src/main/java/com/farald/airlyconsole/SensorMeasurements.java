@@ -1,3 +1,5 @@
+package com.farald.airlyconsole;
+
 public class SensorMeasurements {
     public final Measurements currentMeasurements;
     public final MeasurementsWithInterval[] history;
